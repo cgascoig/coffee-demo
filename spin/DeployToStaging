@@ -1,0 +1,331 @@
+{
+ "application": "coffee-demo",
+ "id": "72fef575-df49-4f4e-99a6-d34c8873279f",
+ "index": 2,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "anonymous",
+ "limitConcurrent": true,
+ "name": "DeployToStaging",
+ "parameterConfig": [],
+ "stages": [
+  {
+   "account": "gke-staging",
+   "cloudProvider": "kubernetes",
+   "kinds": [],
+   "labelSelectors": {
+    "selectors": []
+   },
+   "location": "",
+   "manifestArtifactAccount": "embedded-artifact",
+   "manifests": [
+    {
+     "apiVersion": "extensions/v1beta1",
+     "kind": "Deployment",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-app"
+      },
+      "name": "coffee-demo-app",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "replicas": 1,
+      "template": {
+       "metadata": {
+        "labels": {
+         "name": "coffee-demo-app"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "command": [
+           "/coffee-demo-app",
+           "-verbose",
+           "-mongo",
+           "mongodb://coffee-demo-mongo:27017"
+          ],
+          "image": "cgascoig/coffee-demo-app:latest",
+          "imagePullPolicy": "Always",
+          "name": "coffee-demo-app",
+          "ports": [
+           {
+            "containerPort": 5000,
+            "name": "http"
+           }
+          ],
+          "volumeMounts": [
+           {
+            "mountPath": "/keys",
+            "name": "dialogflow-key",
+            "readOnly": true
+           }
+          ]
+         }
+        ],
+        "volumes": [
+         {
+          "name": "dialogflow-key",
+          "secret": {
+           "secretName": "dialogflow-key"
+          }
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "apiVersion": "v1",
+     "kind": "Service",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-app"
+      },
+      "name": "coffee-demo-app",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "ports": [
+       {
+        "port": 5000,
+        "targetPort": 5000
+       }
+      ],
+      "selector": {
+       "name": "coffee-demo-app"
+      }
+     }
+    },
+    {
+     "apiVersion": "extensions/v1beta1",
+     "kind": "Deployment",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-reporting"
+      },
+      "name": "coffee-demo-reporting",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "replicas": 1,
+      "template": {
+       "metadata": {
+        "labels": {
+         "name": "coffee-demo-reporting"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "command": [
+           "/coffee-demo-reporting",
+           "-verbose",
+           "-mongo",
+           "mongodb://coffee-demo-mongo:27017"
+          ],
+          "image": "cgascoig/coffee-demo-reporting:latest",
+          "imagePullPolicy": "Always",
+          "name": "coffee-demo-reporting",
+          "ports": [
+           {
+            "containerPort": 5000,
+            "name": "http"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "apiVersion": "v1",
+     "kind": "Service",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-reporting"
+      },
+      "name": "coffee-demo-reporting",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "ports": [
+       {
+        "port": 5000,
+        "targetPort": 5000
+       }
+      ],
+      "selector": {
+       "name": "coffee-demo-reporting"
+      }
+     }
+    },
+    {
+     "apiVersion": "extensions/v1beta1",
+     "kind": "Deployment",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-front-end"
+      },
+      "name": "coffee-demo-front-end",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "replicas": 1,
+      "template": {
+       "metadata": {
+        "labels": {
+         "name": "coffee-demo-front-end"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "env": [
+           {
+            "name": "pipeline",
+            "value": "${execution.id}"
+           }
+          ],
+          "image": "cgascoig/coffee-demo-front-end:latest",
+          "imagePullPolicy": "Always",
+          "name": "coffee-demo-front-end",
+          "ports": [
+           {
+            "containerPort": 80,
+            "name": "http"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "apiVersion": "v1",
+     "kind": "Service",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-front-end"
+      },
+      "name": "coffee-demo-front-end",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "ports": [
+       {
+        "port": 80,
+        "targetPort": 80
+       }
+      ],
+      "selector": {
+       "name": "coffee-demo-front-end"
+      },
+      "type": "NodePort"
+     }
+    },
+    {
+     "apiVersion": "extensions/v1beta1",
+     "kind": "Deployment",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-mongo"
+      },
+      "name": "coffee-demo-mongo",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "replicas": 1,
+      "template": {
+       "metadata": {
+        "labels": {
+         "name": "coffee-demo-mongo"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "image": "mongo",
+          "imagePullPolicy": "Always",
+          "name": "coffee-demo-mongo",
+          "ports": [
+           {
+            "containerPort": 27017,
+            "name": "mongo"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "apiVersion": "v1",
+     "kind": "Service",
+     "metadata": {
+      "labels": {
+       "name": "coffee-demo-mongo"
+      },
+      "name": "coffee-demo-mongo",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "ports": [
+       {
+        "port": 27017,
+        "targetPort": 27017
+       }
+      ],
+      "selector": {
+       "name": "coffee-demo-mongo"
+      }
+     }
+    },
+    {
+     "apiVersion": "extensions/v1beta1",
+     "kind": "Ingress",
+     "metadata": {
+      "name": "coffee-demo-front-end",
+      "namespace": "coffee-demo"
+     },
+     "spec": {
+      "rules": [
+       {
+        "http": {
+         "paths": [
+          {
+           "backend": {
+            "serviceName": "coffee-demo-front-end",
+            "servicePort": 80
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "moniker": {
+    "app": "coffee-demo"
+   },
+   "name": "Deploy (Manifest)",
+   "options": {
+    "cascading": true
+   },
+   "refId": "1",
+   "relationships": {
+    "loadBalancers": [],
+    "securityGroups": []
+   },
+   "requisiteStageRefIds": [],
+   "source": "text",
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1537883632000"
+}

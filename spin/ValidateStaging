@@ -1,0 +1,33 @@
+{
+ "application": "coffee-demo",
+ "id": "4b2d35d0-618f-44db-9daa-bd284d62d1a0",
+ "index": 1,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "anonymous",
+ "limitConcurrent": true,
+ "name": "Validate Staging",
+ "stages": [
+  {
+   "failPipeline": true,
+   "instructions": "Check the staging site \u003ca href=\"http://coffee-staging.aci.ceclab.info/\"\u003ehttp://coffee-staging.aci.ceclab.info/\u003c/a\u003e",
+   "judgmentInputs": [],
+   "name": "Manual Judgment",
+   "notifications": [],
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "type": "manualJudgment"
+  }
+ ],
+ "triggers": [
+  {
+   "application": "coffee-demo",
+   "enabled": true,
+   "pipeline": "72fef575-df49-4f4e-99a6-d34c8873279f",
+   "status": [
+    "successful"
+   ],
+   "type": "pipeline"
+  }
+ ],
+ "updateTs": "1538446332000"
+}
